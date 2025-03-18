@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, jsonify
 from Metodos_Numericos.newton_raphson import newton_raphson, convertir_ecuacion as convertir_ecuacion_newton
 from Metodos_Numericos.secante import secante, convertir_ecuacion as convertir_ecuacion_secante
+from Metodos_Numericos.punto_fijo import punto_fijo
+
 
 app = Flask(__name__)
 
@@ -15,6 +17,10 @@ def newton_raphson_form():
 @app.route('/secante')
 def secante_form():
     return render_template('secante.html')
+
+@app.route('/punto_fijo')
+def punto_fijo_form():
+    return render_template('punto_fijo.html')
 
 @app.route('/calcular_newton_raphson', methods=['POST'])
 def calcular_newton_raphson():
@@ -85,6 +91,21 @@ def calcular_secante():
                               metodo="Secante", 
                               error=str(e),
                               tipo="secante")
+    
+@app.route('/calcular_punto_fijo', methods=['POST'])
+def calcular_punto_fijo():
+    try:
+        ecuacion = request.form.get('ecuacion')
+        g_x = request.form.get('g_x')
+        x0 = float(request.form.get('x0'))
+        tolerancia = float(request.form.get('tolerancia', '1e-6'))
+        max_iter = int(request.form.get('max_iter', '100'))
+        
+        resultado = punto_fijo(ecuacion, g_x, x0, tolerancia, max_iter)
+        
+        return render_template('resultados.html', metodo="Punto Fijo", ecuacion=ecuacion, resultado=resultado, tipo="punto_fijo")
+    except Exception as e:
+        return render_template('resultados.html', metodo="Punto Fijo", error=str(e), tipo="punto_fijo")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
