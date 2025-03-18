@@ -1,10 +1,7 @@
 import sympy as sp
+import numpy as np
 
-#===============================================================================
 def convertir_ecuacion(ecuacion):
-    """
-    Convierte una cadena de texto a una expresión simbólica de sympy.
-    """
     # Define el símbolo de la variable
     x = sp.symbols('x')
     
@@ -20,17 +17,29 @@ def convertir_ecuacion(ecuacion):
         expresion_simplificada = sp.simplify(expresion)
         
         # Devuelve una función evaluable y el símbolo 'x'
-        return expresion_simplificada, x
+        return sp.lambdify(x, expresion_simplificada, modules='numpy'), x
     
     except sp.SympifyError:
         raise ValueError("La ecuación ingresada no es válida.")
 
-#===============================================================================
 def calcular_error_porcentual(valor_actual, valor_anterior):
-    """
-    Calcula el error porcentual entre dos valores.
-    """
-    if abs(valor_anterior) < 1e-10:
+    if valor_anterior == 0:
         return float('inf')
     else:
         return abs((valor_actual - valor_anterior) / valor_anterior) * 100
+
+def secante(f, x0, x1, tol=1e-5, max_iter=100):
+    errores = []
+    for i in range(max_iter):
+        f_x0 = f(x0)
+        f_x1 = f(x1)
+        if f_x1 - f_x0 == 0:
+            return None, errores
+        x2 = x1 - f_x1 * (x1 - x0) / (f_x1 - f_x0)
+        error = calcular_error_porcentual(x2, x1)
+        errores.append((i+1, float(error)))
+        if abs(x2 - x1) < tol:
+            return float(x2), errores
+        x0 = x1
+        x1 = x2
+    return None, errores
