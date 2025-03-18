@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h1 class="text-center">Calculadora de Métodos Numéricos</h1>
+            </div>
+            <div class="card-body">
+                <p class="lead text-center">Seleccione un método numérico para encontrar raíces de ecuaciones:</p>
+                
+                <div class="row text-center mt-4">
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Newton-Raphson</h5>
+                                <p class="card-text">Utiliza derivadas para aproximar rápidamente a la raíz.</p>
+                                <a href="/newton" class="btn btn-primary">Ir al método</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Punto Fijo</h5>
+                                <p class="card-text">Transforma la ecuación a la forma x = g(x) e itera hasta converger.</p>
+                                <a href="/puntofijo" class="btn btn-primary">Ir al método</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Secante</h5>
+                                <p class="card-text">Similar a Newton-Raphson pero sin usar derivadas.</p>
+                                <a href="/secante" class="btn btn-primary">Ir al método</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

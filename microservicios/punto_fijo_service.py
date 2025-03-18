@@ -1,14 +1,7 @@
 import sympy as sp
 from utils.conversor import convertir_ecuacion, calcular_error_porcentual
 
-#=========================================================================================================================================
-def complex_to_dict(c):
-    """
-    Convierte un número complejo a un diccionario con partes real e imaginaria.
-    """
-    return {'real': float(c.real), 'imag': float(c.imag)}
-
-#=========================================================================================================================================
+#=======================================================================================================================
 def punto_fijo(ecuacion, x, valor_inicial, max_iter=100, tolerancia=1e-4):
     """
     Implementa el método de punto fijo para encontrar raíces.
@@ -21,46 +14,58 @@ def punto_fijo(ecuacion, x, valor_inicial, max_iter=100, tolerancia=1e-4):
         tolerancia: Tolerancia para el criterio de parada
     
     Returns:
-        La raíz encontrada y una lista de errores por iteración
+        La raíz encontrada y una lista con los datos de cada iteración
     """
+    x_actual = float(valor_inicial)
+    f = sp.lambdify(x, ecuacion, 'numpy')
+    
+    # Lista para almacenar los datos de cada iteración
     iteraciones = []
-    aproximaciones = [complex(valor_inicial)]
-    errores = []
-    x_actual = complex(valor_inicial)
-
+    
     for i in range(1, max_iter + 1):
         x_anterior = x_actual
-        x_actual = complex(ecuacion.subs(x, x_anterior).evalf())
-        aproximaciones.append(x_actual)
-        error_actual = calcular_error_porcentual(x_actual, x_anterior)
         
-        iteraciones.append(i)
-        errores.append((i, float(error_actual)))
+        # Calcular g(x)
+        g_x = float(f(x_anterior))  
+        x_actual = g_x
+        
+        error = calcular_error_porcentual(x_actual, x_anterior)
+        
+        # Guardar datos de la iteración actual
+        iteraciones.append({
+            'iteracion': i,
+            'x_n': x_anterior,
+            'g_x_n': g_x,
+            'error': error
+        })
+        
+        if error < tolerancia:
+            mensaje = "Convergencia exitosa"
+            return x_actual, iteraciones, mensaje
 
-        if error_actual < tolerancia:
-            return complex_to_dict(x_actual), errores, "Convergencia exitosa", aproximaciones
+    mensaje = "Se alcanzó el número máximo de iteraciones sin convergencia"
+    return None, iteraciones, mensaje
 
-    return None, errores, "Se alcanzó el número máximo de iteraciones sin convergencia", aproximaciones
-
-#=========================================================================================================================================
+#=======================================================================================================================
 def resolver_punto_fijo(ecuacion_str, valor_inicial, max_iter=100, tolerancia=1e-4):
     """
     Función principal que resuelve una ecuación usando punto fijo.
     """
     try:
-        ecuacion, x = convertir_ecuacion(ecuacion_str)
+        expr, x = convertir_ecuacion(ecuacion_str)
         
-        # Convertir la función a la forma de punto fijo g(x) = x
-        # Para ello despejamos g(x) = x + f(x)
-        g_x = ecuacion + x
+        # En punto fijo, necesitamos convertir la ecuación f(x) = 0 a la forma x = g(x)
+        # Despejamos para obtener g(x) = x - f(x)
+        g_x = x - expr  # Esta es una forma de despejar, hay otras
         
-        raiz, errores, mensaje, aproximaciones = punto_fijo(g_x, x, float(valor_inicial), int(max_iter), float(tolerancia))
+        raiz, iteraciones, mensaje = punto_fijo(g_x, x, float(valor_inicial), int(max_iter), float(tolerancia))
         
         return {
             'raiz': raiz,
-            'errores': errores,
+            'iteraciones': iteraciones,
             'mensaje': mensaje,
-            'aproximaciones': aproximaciones
+            'ecuacion_original': str(expr),
+            'ecuacion_despejada': str(g_x)
         }
     except Exception as e:
         return {
