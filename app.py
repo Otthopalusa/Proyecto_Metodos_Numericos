@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from Metodos_Numericos.newton_raphson import newton_raphson, convertir_ecuacion as convertir_ecuacion_newton
 from Metodos_Numericos.secante import secante, convertir_ecuacion as convertir_ecuacion_secante
 from Metodos_Numericos.punto_fijo import punto_fijo
+from Metodos_Numericos.biseccion import biseccion
 
 
 app = Flask(__name__)
@@ -21,6 +22,10 @@ def secante_form():
 @app.route('/punto_fijo')
 def punto_fijo_form():
     return render_template('punto_fijo.html')
+
+@app.route('/biseccion')
+def biseccion_page():
+    return render_template('biseccion.html')
 
 @app.route('/calcular_newton_raphson', methods=['POST'])
 def calcular_newton_raphson():
@@ -106,6 +111,27 @@ def calcular_punto_fijo():
         return render_template('resultados.html', metodo="Punto Fijo", ecuacion=ecuacion, resultado=resultado, tipo="punto_fijo")
     except Exception as e:
         return render_template('resultados.html', metodo="Punto Fijo", error=str(e), tipo="punto_fijo")
+    
+
+@app.route('/calcular_biseccion', methods=['POST'])
+def calcular_biseccion():
+    try:
+        ecuacion_str = request.form['ecuacion']
+        a = float(request.form['a'])
+        b = float(request.form['b'])
+        tolerancia = float(request.form['tolerancia'])
+        max_iter = int(request.form['max_iter'])
+
+        x = sp.Symbol('x')
+        ecuacion = sp.sympify(ecuacion_str)  # Convierte la ecuación en una función simbólica
+
+        raiz, iteraciones = biseccion(ecuacion, x, a, b, tolerancia, max_iter)
+
+        resultado = f"La raíz encontrada es {raiz:.6f} después de {iteraciones} iteraciones."
+    except Exception as e:
+        resultado = f"Error: {e}"
+
+    return render_template('index.html', resultado=resultado)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
