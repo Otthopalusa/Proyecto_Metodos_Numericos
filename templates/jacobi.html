@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Método Jacobi</title>
+  <style>
+    /* Estilo global */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    /* Título principal */
+    h1 {
+      margin-top: 20px;
+      color: #333;
+    }
+    
+    /* Contenedor principal */
+    .card {
+      background-color: #fff;
+      padding: 20px;
+      margin: 20px;
+      width: 90%;
+      max-width: 600px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    
+    /* Grupos de formulario */
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #555;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    
+    /* Secciones específicas para inputs */
+    #matrixASection, 
+    #vectorBSection, 
+    #vectorX0Section {
+      margin-bottom: 15px;
+    }
+    
+    #matrixASection h3,
+    #vectorBSection h3,
+    #vectorX0Section h3 {
+      margin-bottom: 10px;
+      color: #444;
+    }
+    
+    /* Estilo para filas de la matriz */
+    .matrix-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 5px;
+    }
+    
+    .matrix-row input {
+      flex: 1;
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    
+    /* Botón de envío */
+    button {
+      background-color: #4caf50;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    button:hover {
+      background-color: #45a049;
+    }
+    
+    /* Contenedor del resultado */
+    #result {
+      width: 90%;
+      max-width: 600px;
+      margin: 20px auto;
+      text-align: center;
+    }
+    
+    /* Estilos para mensajes de resultado */
+    .card.resultado {
+      padding: 15px;
+      border-radius: 4px;
+      background-color: #e0f7fa;
+      color: #00796b;
+      margin-top: 10px;
+    }
+    
+    .card.resultado.error {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+  </style>
+</head>
+<body>
+  <h1>Método Jacobi</h1>
+  <div class="card">
+    <form id="jacobiForm">
+      <div class="form-group">
+        <label for="matrixSize">Tamaño de la matriz:</label>
+        <input type="number" id="matrixSize" name="matrixSize" value="3" min="1" required>
+      </div>
+      <div id="matrixASection">
+        <h3>Matriz A</h3>
+        <div id="matrixA"></div>
+      </div>
+      <div id="vectorBSection">
+        <h3>Vector b</h3>
+        <div id="vectorB"></div>
+      </div>
+      <div id="vectorX0Section">
+        <h3>Vector x0</h3>
+        <div id="vectorX0"></div>
+      </div>
+      <div class="form-group">
+        <h3>Tolerancia</h3>
+        <input id="tolerancia" name="tolerancia" type="number" step="any" placeholder="Ingrese la tolerancia" required>
+      </div>
+      <div class="form-group">
+        <h3>Max Iteraciones</h3>
+        <input id="max_iter" name="max_iter" type="number" placeholder="Ingrese el número máximo de iteraciones" required>
+      </div>
+      <button type="submit" style="background-color: #4caf50">Enviar</button>
+    </form>
+  </div>
+  <div id="result"></div>
+
+  <!-- Incluye el archivo JavaScript -->
+  <script src="jacobi.js"></script>
+</body>
+</html>
