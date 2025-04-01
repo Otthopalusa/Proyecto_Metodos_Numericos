@@ -11,6 +11,7 @@ from Metodos_Numericos.gauss_seidel import gauss_seidel
 app = Flask(__name__)
 CORS(app)  # Habilita CORS para todas las rutas
 
+
 # Función de punto fijo implementada directamente en app.py
 def punto_fijo(ecuacion_str, g_x_str, x0, tolerancia=1e-6, max_iter=100):
     try:
