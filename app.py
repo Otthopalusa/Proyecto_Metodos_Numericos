@@ -5,6 +5,8 @@ import sympy as sp
 from Metodos_Numericos.newton_raphson import newton_raphson, convertir_ecuacion as convertir_ecuacion_newton
 from Metodos_Numericos.secante import secante, convertir_ecuacion as convertir_ecuacion_secante
 from Metodos_Numericos.biseccion import biseccion
+from Metodos_Numericos.jacobi import jacobi
+from Metodos_Numericos.gauss_seidel import gauss_seidel
 
 app = Flask(__name__)
 CORS(app)  # Habilita CORS para todas las rutas
@@ -335,6 +337,46 @@ def calcular_jacobi():
         
         # Llamar a la función jacobi importada
         result = jacobi(A, b, x0, tolerancia, max_iter)
+        if result is None:
+            resultado = {"success": False, "message": "No se alcanzó la tolerancia deseada", "iteraciones": max_iter}
+        else:
+            resultado = {"success": True, "resultado": result.tolist()}
+            
+        return jsonify(resultado)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
+def jacobi_form():
+    return render_template('gauss_seidel.html')
+
+# Endpoint para calcular Jacobi (lee datos como JSON)
+@app.route('/calcular_gauss_seidel', methods=['POST'])
+def calcular_gauss_seidel():
+    try:
+        data = request.get_json()  # Leer los datos en formato JSON
+        if not data:
+            return jsonify({"error": "No se recibieron datos JSON"}), 400
+
+        # Verifica que se haya enviado el campo 'matrix_size'
+        if data.get('matrix_size') is None:
+            return jsonify({"error": "Falta el campo matrix_size"}), 400
+        matrix_size = int(data.get('matrix_size'))
+        
+        A_str = data.get('A')
+        b_str = data.get('b')
+        x0_str = data.get('x0')
+        tolerancia = float(data.get('tolerancia', 1e-6))
+        max_iter = int(data.get('max_iter', 100))
+        
+        # Convertir la cadena de la matriz A (filas separadas por ';' y elementos por ',')
+        A_rows = A_str.split(';')
+        A = [list(map(float, row.split(','))) for row in A_rows]
+        A = np.array(A)
+        b = np.array(list(map(float, b_str.split(','))))
+        x0 = np.array(list(map(float, x0_str.split(','))))
+        
+        # Llamar a la función jacobi importada
+        result = gauss_seidel(A, b, x0, tolerancia, max_iter)
         if result is None:
             resultado = {"success": False, "message": "No se alcanzó la tolerancia deseada", "iteraciones": max_iter}
         else:
