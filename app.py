@@ -4,16 +4,109 @@ import numpy as np
 import sympy as sp
 from Metodos_Numericos.newton_raphson import newton_raphson, convertir_ecuacion as convertir_ecuacion_newton
 from Metodos_Numericos.secante import secante, convertir_ecuacion as convertir_ecuacion_secante
-from Metodos_Numericos.punto_fijo import punto_fijo
 from Metodos_Numericos.biseccion import biseccion
-from Metodos_Numericos.jacobi import jacobi
-
-
 
 app = Flask(__name__)
 CORS(app)  # Habilita CORS para todas las rutas
 
-# Rutas de otros métodos numéricos (omito por brevedad)
+# Función de punto fijo implementada directamente en app.py
+def punto_fijo(ecuacion_str, g_x_str, x0, tolerancia=1e-6, max_iter=100):
+    try:
+        x = sp.Symbol('x')
+        
+        # Convertir a expresiones simbólicas
+        g_expr = sp.sympify(g_x_str)
+        
+        # Crear función lambda para evaluación numérica
+        g_func = sp.lambdify(x, g_expr)
+        
+        iteraciones = []
+        
+        # Valor inicial
+        x_actual = float(x0)
+        
+        for i in range(max_iter):
+            try:
+                # Calcular próximo valor
+                x_siguiente = float(g_func(x_actual))
+                
+                # Verificar que sea un número válido
+                if not np.isfinite(x_siguiente):
+                    return {
+                        'success': False,
+                        'message': f"La iteración produjo un valor no válido en la iteración {i+1}",
+                        'iteraciones': iteraciones
+                    }
+                
+                # Calcular error
+                error = abs(x_siguiente - x_actual)
+                
+                # Guardar datos de esta iteración
+                iteraciones.append({
+                    'iteracion': i + 1,
+                    'x0': float(x_actual),
+                    'x1': float(x_siguiente),
+                    'error': float(error)
+                })
+                
+                # Verificar convergencia
+                if error < tolerancia:
+                    return {
+                        'success': True,
+                        'raiz': float(x_siguiente),
+                        'iteraciones': iteraciones
+                    }
+                
+                # Actualizar para próxima iteración
+                x_actual = x_siguiente
+                
+            except Exception as e:
+                return {
+                    'success': False,
+                    'message': f"Error en la iteración {i+1}: {str(e)}",
+                    'iteraciones': iteraciones
+                }
+        
+        # Si llegamos aquí, es porque se alcanzó el máximo de iteraciones
+        return {
+            'success': False,
+            'message': f"No se alcanzó la convergencia después de {max_iter} iteraciones.",
+            'iteraciones': iteraciones
+        }
+        
+    except Exception as e:
+        return {
+            'success': False,
+            'message': f"Error al inicializar el método: {str(e)}",
+            'iteraciones': []
+        }
+
+# Función para el método jacobi
+def jacobi(A, b, x0, tol=1e-6, max_iter=100):
+    n = len(b)
+    x = x0.copy()
+    x_new = x.copy()
+    
+    for k in range(max_iter):
+        for i in range(n):
+            sum_ax = 0
+            for j in range(n):
+                if i != j:
+                    sum_ax += A[i, j] * x[j]
+            
+            x_new[i] = (b[i] - sum_ax) / A[i, i]
+        
+        # Calcular el error y verificar convergencia
+        error = np.linalg.norm(x_new - x)
+        if error < tol:
+            return x_new
+        
+        # Actualizar x para la siguiente iteración
+        x = x_new.copy()
+    
+    return None
+
+# Rutas de otros métodos numéricos
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -107,40 +200,110 @@ def calcular_secante():
 @app.route('/calcular_punto_fijo', methods=['POST'])
 def calcular_punto_fijo():
     try:
-        ecuacion = request.form.get('ecuacion')
+        ecuacion = request.form.get('ecuacion', '')
         g_x = request.form.get('g_x')
         x0 = float(request.form.get('x0'))
         tolerancia = float(request.form.get('tolerancia', '1e-6'))
         max_iter = int(request.form.get('max_iter', '100'))
         
-        resultado = punto_fijo(ecuacion, g_x, x0, tolerancia, max_iter)
+        # Implementación que maneja mejor errores numéricos
+        import sympy as sp
+        import numpy as np
         
-        return render_template('resultados.html', metodo="Punto Fijo", ecuacion=ecuacion, resultado=resultado, tipo="punto_fijo")
+        x = sp.Symbol('x')
+        g_expr = sp.sympify(g_x)
+        g_func = sp.lambdify(x, g_expr, modules=['numpy', {'sin': np.sin, 'cos': np.cos, 'exp': np.exp, 'log': np.log}])
+        
+        iteraciones = []
+        x_actual = float(x0)
+        convergio = False
+        raiz = None
+        mensaje = ""
+        
+        for i in range(max_iter):
+            try:
+                # Verificar si el valor actual es demasiado grande
+                if abs(x_actual) > 1e100:
+                    mensaje = f"El valor de x se volvió demasiado grande en la iteración {i+1}. El método está divergiendo."
+                    break
+                
+                # Calcular nuevo valor con manejo de excepciones
+                x_nuevo = float(g_func(x_actual))
+                
+                # Verificar si el resultado es un número válido
+                if not np.isfinite(x_nuevo):
+                    mensaje = f"La iteración produjo un valor no finito en la iteración {i+1}. La función probablemente diverge."
+                    break
+                
+                # Calcular error
+                error = abs(x_nuevo - x_actual)
+                
+                # Guardar esta iteración
+                iteraciones.append((i+1, x_actual, x_nuevo, error))
+                
+                # Verificar convergencia
+                if error < tolerancia:
+                    convergio = True
+                    raiz = x_nuevo
+                    break
+                
+                # Verificar si el error está aumentando (divergencia)
+                if i > 0 and error > 10 * iteraciones[-2][3]:  # Error aumenta muy rápido
+                    mensaje = f"El error está aumentando rápidamente en la iteración {i+1}. El método parece estar divergiendo."
+                    break
+                
+                # Actualizar para próxima iteración
+                x_actual = x_nuevo
+                
+            except OverflowError:
+                mensaje = f"Desbordamiento numérico en la iteración {i+1}. Los valores se volvieron demasiado grandes."
+                break
+            except Exception as e:
+                mensaje = f"Error en la iteración {i+1}: {str(e)}"
+                break
+        
+        # Si se alcanzó el máximo de iteraciones sin convergir
+        if not convergio and not mensaje:
+            mensaje = f"No se alcanzó la convergencia después de {max_iter} iteraciones"
+        
+        # Renderizar plantilla
+        return render_template('resultados_punto_fijo.html',
+                              ecuacion=g_x,
+                              iteraciones=iteraciones,
+                              convergio=convergio,
+                              raiz=raiz,
+                              mensaje=mensaje)
+                              
     except Exception as e:
-        return render_template('resultados.html', metodo="Punto Fijo", error=str(e), tipo="punto_fijo")
-    
-
+        # Error general
+        return render_template('resultados_punto_fijo.html',
+                              ecuacion=g_x if 'g_x' in locals() else "",
+                              error=str(e))
 @app.route('/calcular_biseccion', methods=['POST'])
 def calcular_biseccion():
     try:
-        ecuacion_str = request.form['ecuacion']
-        a = float(request.form['a'])
-        b = float(request.form['b'])
-        tolerancia = float(request.form['tolerancia'])
-        max_iter = int(request.form['max_iter'])
-
-        x = sp.Symbol('x')
-        ecuacion = sp.sympify(ecuacion_str)  # Convierte la ecuación en una función simbólica
-
-        raiz, iteraciones = biseccion(ecuacion, x, a, b, tolerancia, max_iter)
-
-        resultado = f"La raíz encontrada es {raiz:.6f} después de {iteraciones} iteraciones."
+        ecuacion = request.form.get('ecuacion', '')
+        a = float(request.form.get('a'))
+        b = float(request.form.get('b'))
+        tolerancia = float(request.form.get('tolerancia', '1e-6'))
+        max_iter = int(request.form.get('max_iter', '100'))
+        
+        # Llamar a la función biseccion
+        from Metodos_Numericos.biseccion import biseccion
+        resultado = biseccion(ecuacion, a, b, tolerancia, max_iter)
+        
+        return render_template('resultados.html', 
+                              metodo="Bisección",
+                              ecuacion=ecuacion,
+                              resultado=resultado,
+                              tipo="biseccion")
+                              
     except Exception as e:
-        resultado = f"Error: {e}"
-
-    return render_template('index.html', resultado=resultado)
- 
-@app.route('/jacobi')
+        return render_template('resultados.html',
+                              metodo="Bisección",
+                              ecuacion=ecuacion if 'ecuacion' in locals() else "",
+                              error=str(e),
+                              tipo="biseccion")
 def jacobi_form():
     return render_template('jacobi.html')
 

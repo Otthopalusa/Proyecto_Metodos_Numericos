@@ -8,6 +8,7 @@
     <style>
         body {
             padding-top: 50px;
+            background: linear-gradient(120deg, #ff8a00 0%, #e77e68 50%, #dd6e7c 100%);
         }
         .jumbotron {
             padding: 2rem;
@@ -15,9 +16,14 @@
             border-radius: 0.3rem;
             margin-bottom: 2rem;
         }
+        .formula {
+            font-family: "Cambria Math", serif;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
+
     <div class="container">
         <div class="jumbotron text-center">
             <h1>Método de Bisección</h1>
@@ -30,29 +36,67 @@
                     <div class="card-body">
                         <form action="/calcular_biseccion" method="post">
                             <div class="mb-3">
-                                <label for="ecuacion" class="form-label">Ecuación (en términos de 'x')</label>
-                                <input type="text" class="form-control" id="ecuacion" name="ecuacion" placeholder="Ejemplo: x**3 - x - 2" required>
-                                <div class="form-text">Ejemplo: x**3 - x - 2</div>
+                                <label for="ecuacion" class="form-label">Ecuación f(x) = 0</label>
+                                <input type="text" class="form-control" id="ecuacion" name="ecuacion" placeholder="Ejemplo: x**2 - 4" required>
+                                <div class="form-text">Ingresa la ecuación cuya raíz quieres encontrar. Ejemplo: x**2 - 4</div>
                             </div>
                             
                             <div class="mb-3">
                                 <label for="a" class="form-label">Límite inferior (a)</label>
                                 <input type="number" step="any" class="form-control" id="a" name="a" required>
+                                <div class="form-text">Extremo izquierdo del intervalo inicial</div>
                             </div>
-
+                            
                             <div class="mb-3">
                                 <label for="b" class="form-label">Límite superior (b)</label>
                                 <input type="number" step="any" class="form-control" id="b" name="b" required>
+                                <div class="form-text">Extremo derecho del intervalo inicial</div>
                             </div>
                             
                             <div class="mb-3">
                                 <label for="tolerancia" class="form-label">Tolerancia</label>
                                 <input type="number" step="any" class="form-control" id="tolerancia" name="tolerancia" value="0.000001">
+                                <div class="form-text">El criterio de parada (valor predeterminado: 1e-6)</div>
                             </div>
                             
                             <div class="mb-3">
                                 <label for="max_iter" class="form-label">Máximo de iteraciones</label>
                                 <input type="number" class="form-control" id="max_iter" name="max_iter" value="100">
+                                <div class="form-text">Número máximo de iteraciones (valor predeterminado: 100)</div>
+                            </div>
+                            
+                            <div class="alert alert-info mt-3">
+                                <h5>Importante para el método de Bisección:</h5>
+                                <ul>
+                                    <li>El método requiere que f(a) y f(b) tengan signos opuestos.</li>
+                                    <li>Si f(a) · f(b) > 0, el método no garantiza encontrar una raíz.</li>
+                                    <li>El método siempre converge, pero puede ser más lento que otros métodos.</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="card mt-3 mb-3">
+                                <div class="card-header">
+                                    Ejemplos de ecuaciones
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Ejemplo 1:</strong> Para la ecuación <span class="formula">x² - 4 = 0</span></p>
+                                    <ul>
+                                        <li>Intervalo: [1, 3]</li>
+                                        <li>Raíz esperada: x = 2</li>
+                                    </ul>
+                                    
+                                    <p><strong>Ejemplo 2:</strong> Para la ecuación <span class="formula">cos(x) - x = 0</span></p>
+                                    <ul>
+                                        <li>Intervalo: [0, 1]</li>
+                                        <li>Raíz esperada: x ≈ 0.739085</li>
+                                    </ul>
+                                    
+                                    <p><strong>Ejemplo 3:</strong> Para la ecuación <span class="formula">exp(-x) - x = 0</span></p>
+                                    <ul>
+                                        <li>Intervalo: [0, 1]</li>
+                                        <li>Raíz esperada: x ≈ 0.567143</li>
+                                    </ul>
+                                </div>
                             </div>
                             
                             <div class="d-grid gap-2">
@@ -64,15 +108,22 @@
                 </div>
             </div>
         </div>
-
-        {% if resultado %}
-        <div class="mt-4">
-            <h2>Resultado</h2>
-            <p>{{ resultado }}</p>
-        </div>
-        {% endif %}
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Script para mostrar ejemplos predefinidos
+        document.addEventListener('DOMContentLoaded', function() {
+            // Función para llenar el formulario con ejemplos
+            function llenarEjemplo(ecuacion, a, b) {
+                document.getElementById('ecuacion').value = ecuacion;
+                document.getElementById('a').value = a;
+                document.getElementById('b').value = b;
+            }
+            
+            // Agregar evento de clic para los ejemplos (si se implementan botones)
+            // Por ahora, el usuario puede copiar manualmente los ejemplos
+        });
+    </script>
 </body>
 </html>

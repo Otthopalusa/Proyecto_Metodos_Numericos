@@ -8,6 +8,8 @@
     <style>
         body {
             padding-top: 50px;
+            background: linear-gradient(120deg, #ff8a00 0%, #e77e68 50%, #dd6e7c 100%);
+
         }
         .jumbotron {
             padding: 2rem;
@@ -96,21 +98,62 @@
                                             {% endfor %}
                                         </tbody>
                                     </table>
+                                {% elif tipo == "biseccion" %}
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>Iteración</th>
+                                                <th>a</th>
+                                                <th>b</th>
+                                                <th>c (punto medio)</th>
+                                                <th>f(a)</th>
+                                                <th>f(b)</th>
+                                                <th>f(c)</th>
+                                                <th>Error</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for iter in resultado.iteraciones %}
+                                                <tr>
+                                                    <td>{{ iter.iteracion }}</td>
+                                                    <td>{{ "%.8f"|format(iter.a) }}</td>
+                                                    <td>{{ "%.8f"|format(iter.b) }}</td>
+                                                    <td>{{ "%.8f"|format(iter.c) }}</td>
+                                                    <td>{{ "%.8f"|format(iter.f_a) }}</td>
+                                                    <td>{{ "%.8f"|format(iter.f_b) }}</td>
+                                                    <td>{{ "%.8f"|format(iter.f_c) }}</td>
+                                                    <td>
+                                                        {% if iter.error == "N/A" %}
+                                                            N/A
+                                                        {% else %}
+                                                            {{ "%.8f"|format(iter.error) }}
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
                                 {% else %}
                                     <table class="table table-striped table-hover">
-                                        <thead>
+                                        <thead class="table-dark">
                                             <tr>
                                                 <th>Iteración</th>
                                                 <th>Error (%)</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {% for iteracion in resultado.iteraciones %}
+                                            {% if resultado and resultado.iteraciones %}
+                                                {% for iteracion in resultado.iteraciones %}
+                                                    <tr>
+                                                        <td>{{ loop.index }}</td>
+                                                        <td>{{ "%.10f"|format(iteracion) if iteracion is not none else '' }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            {% else %}
                                                 <tr>
-                                                    <td>{{ iteracion[0] }}</td>
-                                                    <td>{{ "%.10f"|format(iteracion[1]) }}</td>
+                                                    <td colspan="2" class="text-center">No hay datos de iteraciones disponibles</td>
                                                 </tr>
-                                            {% endfor %}
+                                            {% endif %}
                                         </tbody>
                                     </table>
                                 {% endif %}
@@ -119,6 +162,9 @@
                             <div class="alert alert-success" role="alert">
                                 <h4 class="alert-heading">¡Éxito!</h4>
                                 <p>La raíz encontrada es: <strong>{{ "%.10f"|format(resultado.raiz) }}</strong></p>
+                                <!-- {% if tipo == "biseccion" and resultado.intervalo_final %}
+                                   <p>Intervalo final: [{{ "%.10f"|format(resultado.intervalo_final[0]) }}, {{ "%.10f"|format(resultado.intervalo_final[1]) }}]</p>
+                                {% endif %}-->
                             </div>
                             
                             <h4 class="mt-4">Tabla de iteraciones</h4>
@@ -177,21 +223,62 @@
                                             {% endfor %}
                                         </tbody>
                                     </table>
+                                {% elif tipo == "biseccion" %}
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>Iteración</th>
+                                                <th>a</th>
+                                                <th>b</th>
+                                                <th>c (punto medio)</th>
+                                                <th>f(a)</th>
+                                                <th>f(b)</th>
+                                                <th>f(c)</th>
+                                                <th>Error</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for iter in resultado.iteraciones %}
+                                                <tr>
+                                                    <td>{{ iter.iteracion }}</td>
+                                                    <td>{{ "%.8f"|format(iter.a) }}</td>
+                                                    <td>{{ "%.8f"|format(iter.b) }}</td>
+                                                    <td>{{ "%.8f"|format(iter.c) }}</td>
+                                                    <td>{{ "%.8f"|format(iter.f_a) }}</td>
+                                                    <td>{{ "%.8f"|format(iter.f_b) }}</td>
+                                                    <td>{{ "%.8f"|format(iter.f_c) }}</td>
+                                                    <td>
+                                                        {% if iter.error == "N/A" %}
+                                                            N/A
+                                                        {% else %}
+                                                            {{ "%.8f"|format(iter.error) }}
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
                                 {% else %}
                                     <table class="table table-striped table-hover">
-                                        <thead>
+                                        <thead class="table-dark">
                                             <tr>
                                                 <th>Iteración</th>
                                                 <th>Error (%)</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {% for iteracion in resultado.iteraciones %}
+                                            {% if resultado and resultado.iteraciones %}
+                                                {% for iteracion in resultado.iteraciones %}
+                                                    <tr>
+                                                        <td>{{ loop.index }}</td>
+                                                        <td>{{ "%.10f"|format(iteracion) if iteracion is not none else '' }}</td>
+                                                    </tr>
+                                                {% endfor %}
+                                            {% else %}
                                                 <tr>
-                                                    <td>{{ iteracion[0] }}</td>
-                                                    <td>{{ "%.10f"|format(iteracion[1]) }}</td>
+                                                    <td colspan="2" class="text-center">No hay datos de iteraciones disponibles</td>
                                                 </tr>
-                                            {% endfor %}
+                                            {% endif %}
                                         </tbody>
                                     </table>
                                 {% endif %}
@@ -203,6 +290,8 @@
                                 <a href="/newton_raphson" class="btn btn-primary">Calcular otra ecuación</a>
                             {% elif tipo == "secante" %}
                                 <a href="/secante" class="btn btn-primary">Calcular otra ecuación</a>
+                            {% elif tipo == "biseccion" %}
+                                <a href="/biseccion" class="btn btn-primary">Calcular otra ecuación</a>
                             {% else %}
                                 <a href="/" class="btn btn-primary">Calcular otra ecuación</a>
                             {% endif %}

@@ -8,12 +8,18 @@
     <style>
         body {
             padding-top: 50px;
+            background: linear-gradient(120deg, #ff8a00 0%, #e77e68 50%, #dd6e7c 100%);
+
         }
         .jumbotron {
             padding: 2rem;
             background-color: #f8f9fa;
             border-radius: 0.3rem;
             margin-bottom: 2rem;
+        }
+        .formula {
+            font-family: "Cambria Math", serif;
+            font-style: italic;
         }
     </style>
 </head>
@@ -30,9 +36,15 @@
                     <div class="card-body">
                         <form action="/calcular_punto_fijo" method="post">
                             <div class="mb-3">
+                                <label for="ecuacion" class="form-label">Ecuación f(x) = 0</label>
+                                <input type="text" class="form-control" id="ecuacion" name="ecuacion" placeholder="Ejemplo: x**2 - 4" required>
+                                <div class="form-text">Ingresa la ecuación cuya raíz quieres encontrar. Ejemplo: x**2 - 4</div>
+                            </div>
+                            
+                            <div class="mb-3">
                                 <label for="g_x" class="form-label">Función g(x)</label>
                                 <input type="text" class="form-control" id="g_x" name="g_x" placeholder="Ejemplo: (x**2 + 4)/2" required>
-                                <div class="form-text">Ingresa una función en términos de 'x'. Ejemplo: (x**2 + 4)/2</div>
+                                <div class="form-text">Ingresa una función en términos de 'x' donde g(x) = x en el punto fijo. Ejemplo: (x**2 + 4)/2</div>
                             </div>
                             
                             <div class="mb-3">
@@ -53,6 +65,41 @@
                                 <div class="form-text">Número máximo de iteraciones (valor predeterminado: 100)</div>
                             </div>
                             
+                            <div class="alert alert-info mt-3">
+                                <h5>Consejos para el método de punto fijo:</h5>
+                                <ul>
+                                    <li>La función g(x) debe ser tal que g(r) = r donde r es la raíz buscada.</li>
+                                    <li>Para que converja, |g'(x)| < 1 en un entorno de la raíz.</li>
+                                    <li>Una forma común de obtener g(x) es despejar x de la ecuación original.</li>
+                                    <li>Elija un valor inicial x0 lo más cercano posible a la raíz estimada.</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="card mt-3 mb-3">
+                                <div class="card-header">
+                                    Ejemplos de funciones que convergen
+                                </div>
+                                <div class="card-body">
+                                    <p><strong>Ejemplo 1:</strong> Para la ecuación <span class="formula">x² - 4 = 0</span> (raíz en x = 2)</p>
+                                    <ul>
+                                        <li>Función g(x) = <span class="formula">sqrt(4) = 2</span></li>
+                                        <li>Valor inicial: x₀ = 1</li>
+                                    </ul>
+                                    
+                                    <p><strong>Ejemplo 2:</strong> Para la ecuación <span class="formula">x³ - x - 2 = 0</span></p>
+                                    <ul>
+                                        <li>Función g(x) = <span class="formula">(x³ - 2)/x</span></li>
+                                        <li>Valor inicial: x₀ = 1.5</li>
+                                    </ul>
+                                    
+                                    <p><strong>Ejemplo 3:</strong> Para la ecuación <span class="formula">cos(x) - x = 0</span></p>
+                                    <ul>
+                                        <li>Función g(x) = <span class="formula">cos(x)</span></li>
+                                        <li>Valor inicial: x₀ = 0.5</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
                             <div class="d-grid gap-2">
                                 <button type="submit" class="btn btn-primary">Calcular</button>
                                 <a href="/" class="btn btn-secondary">Volver al inicio</a>
@@ -65,5 +112,19 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Script para mostrar ejemplos predefinidos
+        document.addEventListener('DOMContentLoaded', function() {
+            // Función para llenar el formulario con ejemplos
+            function llenarEjemplo(ecuacion, g_x, x0) {
+                document.getElementById('ecuacion').value = ecuacion;
+                document.getElementById('g_x').value = g_x;
+                document.getElementById('x0').value = x0;
+            }
+            
+            // Agregar evento de clic para los ejemplos (si se implementan botones)
+            // Por ahora, el usuario puede copiar manualmente los ejemplos
+        });
+    </script>
 </body>
 </html>
